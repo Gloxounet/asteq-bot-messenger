@@ -6,6 +6,8 @@ from pymessenger.bot import Bot
 app = Flask(__name__)
 bot = Bot(ACCESS_TOKEN)
 
+plats=["Crêpes","Sushis","Gauffres"]
+
 #We will receive messages that Facebook sends our bot at this endpoint 
 @app.route("/", methods=['GET', 'POST'])
 def receive_message():
@@ -28,9 +30,12 @@ def receive_message():
                 
                     #response_sent_text = generate_message()
                     #send_message(recipient_id, response_sent_text)
-
-                    buttons = convert_label_list_into_buttons(["Rouge","Vert","Bleu"])
-                    send_message_button(recipient_id, "Choisi une couleur",buttons)
+                    if message['message'].get('text') and message['message']['text'] in plats:
+                        response_sent_text = generate_message(message['message']['text'])
+                        send_message(recipient_id, response_sent_text)
+                    else:
+                        buttons = convert_label_list_into_buttons(plats)
+                        send_message_button(recipient_id, "Hey ! Voici ce que le BDA te propose aujourd'hui. Qu'est-ce qui te fait envie :",buttons)
 
 
     return "Message Processed"
@@ -45,10 +50,9 @@ def verify_fb_token(token_sent):
 
 
 #chooses a random message to send to the user
-def generate_message():
-    sample_responses = ["Allo pizza", "C'est prêt'", "Venez retirer votre commande en P122"]
+def generate_message(response):
     # return selected item to the user
-    return random.choice(sample_responses)
+    return "C'est noté ! Tu peux venir retirer tes" + response + "dans 10min au P124 ! Bon appétit ;)"
 
 #uses PyMessenger to send response to user
 def send_message(recipient_id, response):
